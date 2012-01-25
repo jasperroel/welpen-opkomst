@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, Jasper!</string>
+    <string name="app_name">WelpenApp</string>
+    <string name="PresentieLijst">Presentielijst</string>
+    <string name="Nesten">Nesten</string>
+    <string name="WelpenBeheren">Welpen beheren</string>
+    <string name="Settings">Instellingen</string>
+
+</resources>
