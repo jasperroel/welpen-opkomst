@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class HelloAndroidActivity extends Activity {
+    
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -15,7 +16,6 @@ public class HelloAndroidActivity extends Activity {
 		setContentView(R.layout.main);
 
 		final Button button = (Button) findViewById(R.id.presentielijst);
-		// final Intent intent = new Intent(this, PresentieLijstActivity.class);
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				final Intent intent = new Intent(v.getContext(),
@@ -23,6 +23,15 @@ public class HelloAndroidActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+		
+		final Button settingsButton = (Button) findViewById(R.id.button4);
+		settingsButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                final Intent intent = new Intent(v.getContext(),
+                        PresentieLijstActivity.class);
+                startActivity(intent);
+            }
+        });
 
 	}
 

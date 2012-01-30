@@ -1,14 +1,23 @@
 package com.welpenapp.model;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-public class Person implements DbObject {
+/**
+ * <p>A person.</p>
+ * 
+ * @author Jasper Roel
+ * 
+ */
+public class Person extends DbHelper<Person> implements DbObject {
 
-    private static final String tableName = "Person";
+    public static final String tableName = "Person";
 
     private static final String colId = BaseColumns._ID;
     private static final String colLastName = "LastName";
@@ -65,46 +74,46 @@ public class Person implements DbObject {
         this.db = db;
     }
 
+    protected SQLiteOpenHelper getDb() {
+        return db;
+    }
+
     public String getTableName() {
         return tableName;
     }
 
-    public String[] getColumns() {
+    public String[] getColumnsCreate() {
         return columnsCreate;
     }
 
-    public String[] getColumnNames() {
+    public String[] getColumns() {
         return columns;
     }
 
+    @Override
     public void onCreate(SQLiteDatabase sqLiteDb) {
-        String tableName = getTableName();
-        String[] columns = getColumns();
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("CREATE TABLE ");
-        sb.append(tableName);
-        sb.append(" (");
-
-        String sep = "";
-        for (String column : columns) {
-            sb.append(sep);
-            sb.append(column);
-
-            if (sep.length() == 0) {
-                sep = ", ";
-            }
-        }
-
-        sb.append(" );");
-
-        // SQLiteDatabase wdb = sqLiteDb.getWritableDatabase();
-        sqLiteDb.execSQL(sb.toString());
+        super.onCreate(sqLiteDb);
 
         // Init sample data
         ContentValues cv = new ContentValues();
         cv.put(colFirstName, "Jasper");
         cv.put(colLastName, "Roel");
+        cv.put(colActive, 1);
+        cv.put(colFunctie, "leiding");
+        // cv.put(colOvergevolgen, ???);
+        sqLiteDb.insert(getTableName(), colId, cv);
+
+        cv = new ContentValues();
+        cv.put(colFirstName, "Sander");
+        cv.put(colLastName, "Roebers");
+        cv.put(colActive, 1);
+        cv.put(colFunctie, "leiding");
+        // cv.put(colOvergevolgen, ???);
+        sqLiteDb.insert(getTableName(), colId, cv);
+
+        cv = new ContentValues();
+        cv.put(colFirstName, "Peter");
+        cv.put(colLastName, "van Drunen");
         cv.put(colActive, 1);
         cv.put(colFunctie, "leiding");
         // cv.put(colOvergevolgen, ???);
@@ -116,16 +125,16 @@ public class Person implements DbObject {
     }
 
     /**
-     * <p>Returns a new Person.</p>
+     * <p>Returns a new Person by his full name.</p>
      * 
      * @param _id
      * @return
      */
-    public Person get(int _id) {
-
-        Cursor c = getAsCursor(_id);
+    public Person get(String name) {
+        Cursor c = getAsCursorByWhereClause(colFirstName + " || ' ' || " + colLastName + " = '" + name + "'");
         return getFromCursor(c);
     }
+
 
     /**
      * Returns a new person from the cursor
@@ -146,33 +155,18 @@ public class Person implements DbObject {
         return p;
     }
 
-    public Cursor getAsCursor(int _id) {
-        SQLiteDatabase rdb = db.getReadableDatabase();
-        Cursor c = rdb.query(getTableName(), columns, colId + " = " + _id, null, null, null, null);
-        try {
-        return checkCursor(c);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Error while retrieve record id " + _id, e);
-        }
-    }
-    
-    private Cursor checkCursor(Cursor c) {
-        int count = c.getCount();
-        if (count == 0) {
-            throw new RuntimeException("No records with found in Person");
-        }
-        if (count > 1) {
-            throw new RuntimeException("Multiple records (" + count + ") found in Person");
-        }
-        c.moveToFirst();
-
-        return c;
-    }
-
     public int getId() {
         return id;
     }
 
+    /**
+     * <p>Return {@link #firstName} and {@link #lastName} with a " " added
+     * in between.</p>
+     * 
+     * <p>Will return just {@link #firstName} is {@link #lastName} is empty.</p>
+     * 
+     * @return
+     */
     public String getName() {
         if (null != lastName && lastName.length() != 0) {
             return firstName + " " + lastName;

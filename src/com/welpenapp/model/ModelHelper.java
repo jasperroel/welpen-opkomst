@@ -7,6 +7,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * <p>This is a singleton class, allowing an easy and extendible way
+ * for all {@link DbObject}s to interacts with the SQLite datastore.</p>
+ * 
+ * @author Jasper Roel
+ * 
+ */
 public class ModelHelper extends SQLiteOpenHelper {
 
     // Database definition
@@ -17,6 +24,8 @@ public class ModelHelper extends SQLiteOpenHelper {
     private static final List<Class<? extends DbObject>> TABLES = new LinkedList<Class<? extends DbObject>>();
     static {
         TABLES.add(Person.class);
+        TABLES.add(Opkomst.class);
+        TABLES.add(Aanwezigheid.class);
     }
 
     public ModelHelper(Context context) {
@@ -32,8 +41,19 @@ public class ModelHelper extends SQLiteOpenHelper {
         }
     }
 
+    @Override
+    public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
+        for (Class<? extends DbObject> clazz : TABLES) {
+            DbObject instance = getDbObject(clazz);
+            instance.onUpgrade(arg0, arg1, arg2);
+        }
+    }
+
     /**
-     * <p>Helper method to hide Exceptions...</p>
+     * <p>Helper method to hide Exceptions creating a new object.</p>
+     * 
+     * <p>If an exception does occur, this will throw a {@link RuntimeException}
+     * with the original exception as the cause.</p>
      * 
      * @param clazz
      * @return instantiated {@link DbObject}
@@ -47,13 +67,4 @@ public class ModelHelper extends SQLiteOpenHelper {
             throw new RuntimeException(e);
         }
     }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-        for (Class<? extends DbObject> clazz : TABLES) {
-            DbObject instance = getDbObject(clazz);
-            instance.onUpgrade(arg0, arg1, arg2);
-        }
-    }
-
 }

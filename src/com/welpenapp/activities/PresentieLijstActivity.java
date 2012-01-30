@@ -1,5 +1,8 @@
 package com.welpenapp.activities;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -16,7 +19,10 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.welpenapp.model.Aanwezigheid;
+import com.welpenapp.model.Aanwezigheid.Status;
 import com.welpenapp.model.ModelHelper;
+import com.welpenapp.model.Opkomst;
 import com.welpenapp.model.Person;
 
 public class PresentieLijstActivity extends ListActivity {
@@ -31,18 +37,27 @@ public class PresentieLijstActivity extends ListActivity {
         data = new ModelHelper(this);
 
         Person p = new Person(data);
+        Opkomst o = new Opkomst(data);
 
-        Cursor hathi = p.getAsCursor(1);
+        // TODO Hard-coded
+        final Opkomst opkomst = o.get(1);
+
+        Cursor all = p.getAllAsCursor();
 
         CursorAdapter dataSource = new SimpleCursorAdapter(this,
-            R.layout.presentielijst, hathi, p.getColumnNames(),
+            R.layout.presentielijst, all, p.getColumns(),
             new int[] { R.id.presentielijst, R.id.presentielijst });
 
         setListAdapter(dataSource);
 
-        String[] names = { p.getFromCursor(hathi).getName() };
+        List<Person> allPerson = p.getAllFromCursor(all);
+        List<String> allNames = new LinkedList<String>();
+        for (Person person : allPerson) {
+            allNames.add(person.getName());
+        }
+
         setListAdapter(new ArrayAdapter<String>(this, R.layout.presentielijst,
-            names));
+            allNames));
 
         ListView lv = getListView();
         lv.setTextFilterEnabled(true);
@@ -50,36 +65,47 @@ public class PresentieLijstActivity extends ListActivity {
         lv.setOnItemClickListener(new OnItemClickListener() {
             private Person p;
 
+            /**
+             * <p>This will display the dialog with availability options. See getDialog().</p>
+             */
             public void onItemClick(AdapterView<?> parent, View view,
                 int position, long id) {
                 String name = ((TextView) view).getText().toString();
-                p = new Person(data).get(1);
-
-                // When clicked, show a toast with the TextView text
-                Toast.makeText(getApplicationContext(),
-                    name, Toast.LENGTH_SHORT).show();
-
-                Dialog dialog = getDialog(p);
+                p = new Person(data).get(name);
+                Dialog dialog = getDialog(p, opkomst);
                 dialog.show();
             }
         });
     }
 
-    final CharSequence[] dialogOptions = { "Aanwezig", "Afwezig (met kennisgeving)", "Afwezig (zonder kennisgeving)" };
+    // final CharSequence[] dialogOptions = { "Aanwezig", "Afwezig (met kennisgeving)", "Afwezig (zonder kennisgeving)"
+    // };
 
-    public Dialog getDialog(final Person p) {
+    public Dialog getDialog(final Person p, final Opkomst o) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(p.getName());
-        // builder.setItems(dialogOptions, new DialogInterface.OnClickListener() {
-        builder.setSingleChoiceItems(dialogOptions, -1, new DialogInterface.OnClickListener() {
+        builder.setTitle(p.getName() + " voor " + o.getDate());
+        final CharSequence[] dialogOptions = Aanwezigheid.getStatusValues();
+        
+        int selectedItem = -1;
+        try {
+            Aanwezigheid a = new Aanwezigheid(data).get(p, o);
+            selectedItem = a.getStatus().ordinal();
+        } catch (RuntimeException e) {
+            // NOOP - this happens if there is no item...
+        }
+        
+        builder.setSingleChoiceItems(dialogOptions, selectedItem, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
 
                 Toast.makeText(getApplicationContext(), p.getName() + " is " + dialogOptions[item], Toast.LENGTH_SHORT)
                     .show();
-            }
-        });
-        builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
+
+                // Figure out the right enum :/
+                Status s = Status.getByValue(dialogOptions[item].toString());
+                // Cool, update the DB!
+                Aanwezigheid a = new Aanwezigheid(data);
+                a.add(p, o, s);
+
                 dialog.dismiss();
             }
         });
