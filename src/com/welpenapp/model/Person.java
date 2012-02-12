@@ -13,6 +13,7 @@ import android.provider.BaseColumns;
  * <p>A person.</p>
  * 
  * @author Jasper Roel
+ * @author Sander Roebers
  * 
  */
 public class Person extends DbHelper<Person> implements DbObject {
