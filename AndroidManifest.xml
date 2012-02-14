@@ -4,22 +4,23 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="12" />
+    <uses-sdk android:minSdkVersion="10" />
 
     <application
+        android:debuggable="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" android:debuggable="true">
+        android:label="@string/app_name" >
         <activity
             android:label="@string/app_name"
-            android:name=".HelloAndroidActivity" >
+            android:name=".WelcomeScreenActivity" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".PresentieLijstActivity" />
+        <activity android:name=".PresentieLijstActivity" />
+        <activity android:name=".SpeltakChooserActivity" />
     </application>
 
 </manifest>

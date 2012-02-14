@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -19,9 +20,9 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.welpenapp.db.sqlite.ModelHelper;
 import com.welpenapp.model.Aanwezigheid;
 import com.welpenapp.model.Aanwezigheid.Status;
-import com.welpenapp.model.ModelHelper;
 import com.welpenapp.model.Opkomst;
 import com.welpenapp.model.Person;
 
@@ -78,14 +79,12 @@ public class PresentieLijstActivity extends ListActivity {
         });
     }
 
-    // final CharSequence[] dialogOptions = { "Aanwezig", "Afwezig (met kennisgeving)", "Afwezig (zonder kennisgeving)"
-    // };
-
     public Dialog getDialog(final Person p, final Opkomst o) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(p.getName() + " voor " + o.getDate());
+        String date = DateFormat.format("E, MMMM dd, yyyy", o.getDate()).toString();
+        builder.setTitle(p.getName() + " voor " + date);
         final CharSequence[] dialogOptions = Aanwezigheid.getStatusValues();
-        
+
         int selectedItem = -1;
         try {
             Aanwezigheid a = new Aanwezigheid(data).get(p, o);
@@ -93,7 +92,7 @@ public class PresentieLijstActivity extends ListActivity {
         } catch (RuntimeException e) {
             // NOOP - this happens if there is no item...
         }
-        
+
         builder.setSingleChoiceItems(dialogOptions, selectedItem, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
 

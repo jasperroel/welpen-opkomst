@@ -1,0 +1,7 @@
+
+    <resources>
+        <string-array name="speltakken">
+            <item >Bevers</item>
+            <item >Welpen</item>
+        </string-array>
+    </resources>

@@ -6,13 +6,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
+import com.welpenapp.db.generic.DbHelper;
+
 /**
  * <p>Weak table, holding {@link Person} and {@link Opkomst} together.</p>
  * 
  * @author Jasper Roel
  * 
  */
-public class Aanwezigheid extends DbHelper<Aanwezigheid> implements DbObject {
+public class Aanwezigheid extends DbHelper<Aanwezigheid> {
 
     public enum Status {
         UNKNOWN("Onbekend"),
@@ -40,31 +42,28 @@ public class Aanwezigheid extends DbHelper<Aanwezigheid> implements DbObject {
         }
     }
 
-    public static final String tableName = "Aanwezigheid";
+    public static final String TABLE_NAME = "Aanwezigheid";
 
-    private static final String colId = BaseColumns._ID;
+    private static final String COL_ID = BaseColumns._ID;
+    private static final String COL_PERSON = Person.tableName;
+    private static final String COL_OPKOMST = Opkomst.TABLE_NAME;
+    private static final String COL_STATUS = "Status";
 
-    private static final String colPerson = Person.tableName;
-    private static final String colOpkomst = Opkomst.tableName;
-    private static final String colStatus = "Status";
-
-    private static final String[] columns = new String[] {
-        colId,
-        colPerson,
-        colOpkomst,
-        colStatus
+    private static final String[] COLUMNS = new String[] {
+        COL_ID,
+        COL_PERSON,
+        COL_OPKOMST,
+        COL_STATUS
     };
 
-    private static final String[] columnsCreate = new String[] {
-        colId + " INTEGER PRIMARY KEY AUTOINCREMENT",
-        colPerson + " INTEGER CONSTRAINT fk_" + tableName + "_" + colPerson + "_id " +
-            "REFERENCES " + colPerson + "(" + colId + ")",
-        colOpkomst + " INTEGER CONSTRAINT fk_" + tableName + "_" + colOpkomst + "_id " +
-            "REFERENCES " + colOpkomst + "(" + colId + ")",
-        colStatus + " TEXT default '" + Status.UNKNOWN + "'"
+    private static final String[] COLUMNS_CREATE = new String[] {
+        COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT",
+        COL_PERSON + " INTEGER CONSTRAINT fk_" + TABLE_NAME + "_" + COL_PERSON + "_id " +
+            "REFERENCES " + COL_PERSON + "(" + COL_ID + ")",
+        COL_OPKOMST + " INTEGER CONSTRAINT fk_" + TABLE_NAME + "_" + COL_OPKOMST + "_id " +
+            "REFERENCES " + COL_OPKOMST + "(" + COL_ID + ")",
+        COL_STATUS + " TEXT default '" + Status.UNKNOWN + "'"
     };
-
-    private SQLiteOpenHelper db;
 
     // actual values for Opkomst
     private int id;
@@ -72,11 +71,8 @@ public class Aanwezigheid extends DbHelper<Aanwezigheid> implements DbObject {
     private Opkomst opkomst;
     private Status status;
 
-    /**
-     * <p>Should only be called by {@link ModelHelper}.</p>
-     */
-    protected Aanwezigheid() {
-
+    public Aanwezigheid() {
+        super();
     }
 
     /**
@@ -85,23 +81,19 @@ public class Aanwezigheid extends DbHelper<Aanwezigheid> implements DbObject {
      * @param db
      */
     public Aanwezigheid(SQLiteOpenHelper db) {
-        if (null == db) {
-            throw new NullPointerException("db cannot be null");
-        }
-
-        this.db = db;
+        super(db);
     }
 
     public String getTableName() {
-        return tableName;
+        return TABLE_NAME;
     }
 
     public String[] getColumnsCreate() {
-        return columnsCreate;
+        return COLUMNS_CREATE;
     }
 
     public String[] getColumns() {
-        return columns;
+        return COLUMNS;
     }
 
     public void onCreate(SQLiteDatabase sqLiteDb) {
@@ -120,34 +112,41 @@ public class Aanwezigheid extends DbHelper<Aanwezigheid> implements DbObject {
     }
 
     public Aanwezigheid get(Person p, Opkomst o) {
-        Cursor c = getAsCursorByWhereClause(colPerson + " = " + p.getId() + " AND " + colOpkomst + " = " + o.getId());
+        Cursor c = getAsCursorByWhereClause(COL_PERSON + " = " + p.getId() + " AND " + COL_OPKOMST + " = " + o.getId());
         return getFromCursor(c);
     }
 
     public void add(Person p, Opkomst o, Status s) {
-        SQLiteDatabase wdb = db.getWritableDatabase();
+        SQLiteDatabase wdb = getDb().getWritableDatabase();
 
         ContentValues cv = new ContentValues();
-        cv.put(colPerson, p.getId());
-        cv.put(colOpkomst, o.getId());
-        cv.put(colStatus, s.name());
+        cv.put(COL_PERSON, p.getId());
+        cv.put(COL_OPKOMST, o.getId());
+        cv.put(COL_STATUS, s.name());
 
         wdb.insert(getTableName(), null, cv);
     }
 
     @Override
     public Aanwezigheid getFromCursor(Cursor c) {
-        Aanwezigheid a = new Aanwezigheid(db);
-        a.id = c.getInt(c.getColumnIndex(colId));
-        a.person = new Person(db).get(c.getInt(c.getColumnIndex(colPerson)));
-        a.opkomst = new Opkomst(db).get(c.getInt(c.getColumnIndex(colOpkomst)));
-        a.status = Status.valueOf(c.getString(c.getColumnIndex(colStatus)));
+        Aanwezigheid a = new Aanwezigheid(getDb());
+        a.id = c.getInt(c.getColumnIndex(COL_ID));
+        a.person = new Person(getDb()).get(c.getInt(c.getColumnIndex(COL_PERSON)));
+        a.opkomst = new Opkomst(getDb()).get(c.getInt(c.getColumnIndex(COL_OPKOMST)));
+        a.status = Status.valueOf(c.getString(c.getColumnIndex(COL_STATUS)));
         return a;
     }
 
-    @Override
-    protected SQLiteOpenHelper getDb() {
-        return db;
+    public int getId() {
+        return id;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public Opkomst getOpkomst() {
+        return opkomst;
     }
 
     public Status getStatus() {

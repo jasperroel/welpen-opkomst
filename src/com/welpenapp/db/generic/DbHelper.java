@@ -1,4 +1,4 @@
-package com.welpenapp.model;
+package com.welpenapp.db.generic;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +9,20 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
 public abstract class DbHelper<T> implements DbObject {
+
+    private SQLiteOpenHelper db;
+
+    protected DbHelper() {
+
+    }
+
+    public DbHelper(SQLiteOpenHelper db) {
+        if (null == db) {
+            throw new NullPointerException("db cannot be null");
+        }
+
+        this.db = db;
+    }
 
     public void onCreate(SQLiteDatabase sqLiteDb) {
         String tableName = getTableName();
@@ -39,14 +53,15 @@ public abstract class DbHelper<T> implements DbObject {
     }
 
     public T get(int _id) {
-
         Cursor c = getAsCursor(_id);
         return getFromCursor(c);
     }
 
     public abstract T getFromCursor(Cursor c);
 
-    protected abstract SQLiteOpenHelper getDb();
+    protected SQLiteOpenHelper getDb() {
+        return db;
+    }
 
     public Cursor getAsCursor(int _id) {
         SQLiteDatabase rdb = getDb().getReadableDatabase();

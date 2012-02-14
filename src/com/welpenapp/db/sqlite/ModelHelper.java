@@ -1,7 +1,13 @@
-package com.welpenapp.model;
+package com.welpenapp.db.sqlite;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import com.welpenapp.db.generic.DbObject;
+import com.welpenapp.model.Aanwezigheid;
+import com.welpenapp.model.Opkomst;
+import com.welpenapp.model.Person;
+import com.welpenapp.model.Speltak;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -24,6 +30,7 @@ public class ModelHelper extends SQLiteOpenHelper {
     private static final List<Class<? extends DbObject>> TABLES = new LinkedList<Class<? extends DbObject>>();
     static {
         TABLES.add(Person.class);
+        TABLES.add(Speltak.class);
         TABLES.add(Opkomst.class);
         TABLES.add(Aanwezigheid.class);
     }

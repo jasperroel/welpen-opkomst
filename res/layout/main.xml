@@ -20,11 +20,11 @@
 
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/speltakchooser"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/Nesten" />
+            android:text="@string/Speltakchooser"/>
 
     </TableRow>
 
@@ -40,7 +40,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/WelpenBeheren" />
+            android:text="@string/WelpenBeheren"
+            android:enabled="false" />
 
 
         <Button
@@ -48,7 +49,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/Settings" />
+            android:text="@string/Settings"
+            android:enabled="false" />
 
     </TableRow>
 

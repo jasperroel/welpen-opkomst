@@ -1,7 +1,8 @@
 package com.welpenapp.model;
 
-import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -9,61 +10,54 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-public class Opkomst extends DbHelper<Opkomst> implements DbObject {
+import com.welpenapp.db.generic.DbHelper;
 
-    public static final String tableName = "Opkomst";
+public class Opkomst extends DbHelper<Opkomst> {
 
-    private static final String colId = BaseColumns._ID;
-    private static final String colDate = "Date";
+    public static final String TABLE_NAME = "Opkomst";
 
-    private SQLiteOpenHelper db;
+    private static final String COL_ID = BaseColumns._ID;
+    private static final String COL_SPELTAK = "Speltak";
+    private static final String COL_DATE = "Date";
+
+    private static final String[] COLUMNS_CREATE = new String[] {
+        COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT",
+        COL_SPELTAK + " INTEGER CONSTRAINT fk_" + TABLE_NAME + "_" + COL_SPELTAK + "_id " +
+            "REFERENCES " + COL_SPELTAK + "(" + COL_ID + ")",
+        COL_DATE + " LONG"
+    };
+
+    private static final String[] COLUMNS = new String[] {
+        COL_ID,
+        COL_SPELTAK,
+        COL_DATE
+    };
 
     // actual values for Opkomst
     private int id;
-    private Date date;
+    private Speltak speltak;
+    private Calendar date;
 
-    /**
-     * <p>Should only be called by {@link ModelHelper}.</p>
-     */
-    protected Opkomst() {
-
+    public Opkomst() {
+        super();
     }
 
-    /**
-     * <p>Default constructor.</p>
-     * 
-     * @param db
-     */
     public Opkomst(SQLiteOpenHelper db) {
-        if (null == db) {
-            throw new NullPointerException("db cannot be null");
-        }
-
-        this.db = db;
+        super(db);
     }
-
-    private static final String[] columns = new String[] {
-        colId,
-        colDate
-    };
-
-    private static final String[] columnsCreate = new String[] {
-        colId + " INTEGER PRIMARY KEY AUTOINCREMENT",
-        colDate + " DATE"
-    };
 
     /**
      * {@inheritDoc}
      */
     public String getTableName() {
-        return tableName;
+        return TABLE_NAME;
     }
 
     /**
      * {@inheritDoc}
      */
     public String[] getColumnsCreate() {
-        return columnsCreate;
+        return COLUMNS_CREATE;
     }
 
     @Override
@@ -72,36 +66,41 @@ public class Opkomst extends DbHelper<Opkomst> implements DbObject {
 
         // Init sample data
         ContentValues cv = new ContentValues();
-        cv.put(colDate, new Date(2012, 01, 28).getTime());
-        sqLiteDb.insert(getTableName(), colId, cv);
+        cv.put(COL_SPELTAK, 1);
+        cv.put(COL_DATE, new GregorianCalendar(2012, 01, 28).getTimeInMillis());
+        sqLiteDb.insert(getTableName(), COL_ID, cv);
 
         cv = new ContentValues();
-        cv.put(colDate, new Date(2012, 02, 04).getTime());
-        sqLiteDb.insert(getTableName(), colId, cv);
+        cv.put(COL_SPELTAK, 1);
+        cv.put(COL_DATE, new GregorianCalendar(2012, 02, 04).getTimeInMillis());
+        sqLiteDb.insert(getTableName(), COL_ID, cv);
+    }
+
+    public String[] getColumns() {
+        return COLUMNS;
+    }
+
+    @Override
+    public Opkomst getFromCursor(Cursor c) {
+        Opkomst o = new Opkomst(getDb());
+        o.id = c.getInt(c.getColumnIndex(COL_ID));
+        o.speltak = new Speltak(getDb()).get(c.getInt(c.getColumnIndex(COL_SPELTAK)));
+
+        o.date = new GregorianCalendar();
+        o.date.setTimeInMillis(c.getLong(c.getColumnIndex(COL_DATE)));
+
+        return o;
     }
 
     public int getId() {
         return id;
     }
 
-    public String[] getColumns() {
-        return columns;
+    public Speltak getSpeltak() {
+        return speltak;
     }
 
-    @Override
-    public Opkomst getFromCursor(Cursor c) {
-        Opkomst o = new Opkomst(db);
-        o.id = c.getInt(c.getColumnIndex(colId));
-        o.date = new Date(c.getLong(c.getColumnIndex(colDate)));
-        return o;
-    }
-
-    @Override
-    protected SQLiteOpenHelper getDb() {
-        return db;
-    }
-    
     public Date getDate() {
-        return this.date;
+        return this.date.getTime();
     }
 }

@@ -1,4 +1,4 @@
-package com.welpenapp.model;
+package com.welpenapp.db.generic;
 
 import android.database.sqlite.SQLiteDatabase;
 

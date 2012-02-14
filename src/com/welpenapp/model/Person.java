@@ -1,13 +1,12 @@
 package com.welpenapp.model;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+
+import com.welpenapp.db.generic.DbHelper;
 
 /**
  * <p>A person.</p>
@@ -16,7 +15,7 @@ import android.provider.BaseColumns;
  * @author Sander Roebers
  * 
  */
-public class Person extends DbHelper<Person> implements DbObject {
+public class Person extends DbHelper<Person> {
 
     public static final String tableName = "Person";
 
@@ -45,7 +44,13 @@ public class Person extends DbHelper<Person> implements DbObject {
         colOvergevolgen
     };
 
-    private SQLiteOpenHelper db;
+    public Person() {
+        super();
+    }
+
+    public Person(SQLiteOpenHelper db) {
+        super(db);
+    }
 
     // actual values for person...
     private int id;
@@ -54,30 +59,6 @@ public class Person extends DbHelper<Person> implements DbObject {
     private boolean active;
     private String functie;
     private String overgevlogen;
-
-    /**
-     * <p>Should only be called by {@link ModelHelper}.</p>
-     */
-    protected Person() {
-
-    }
-
-    /**
-     * <p>Default constructor.</p>
-     * 
-     * @param db
-     */
-    public Person(SQLiteOpenHelper db) {
-        if (null == db) {
-            throw new NullPointerException("db cannot be null");
-        }
-
-        this.db = db;
-    }
-
-    protected SQLiteOpenHelper getDb() {
-        return db;
-    }
 
     public String getTableName() {
         return tableName;
@@ -121,10 +102,6 @@ public class Person extends DbHelper<Person> implements DbObject {
         sqLiteDb.insert(getTableName(), colId, cv);
     }
 
-    public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-
-    }
-
     /**
      * <p>Returns a new Person by his full name.</p>
      * 
@@ -136,7 +113,6 @@ public class Person extends DbHelper<Person> implements DbObject {
         return getFromCursor(c);
     }
 
-
     /**
      * Returns a new person from the cursor
      * 
@@ -144,7 +120,7 @@ public class Person extends DbHelper<Person> implements DbObject {
      * @return
      */
     public Person getFromCursor(Cursor c) {
-        Person p = new Person(db);
+        Person p = new Person(getDb());
 
         p.id = c.getInt(c.getColumnIndex(colId));
         p.lastName = c.getString(c.getColumnIndex(colLastName));
