@@ -25,6 +25,7 @@ public class Speltak extends DbHelper<Speltak> {
         COL_NAME
     };
 
+    // Actual values for Spelktak
     private int id;
     private String name;
 

@@ -32,5 +32,14 @@ public class WelcomeScreenActivity extends Activity {
                 startActivity(intent);
             }
         });
+
+        final Button opkomstchooser = (Button) findViewById(R.id.opkomst_chooser);
+        opkomstchooser.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                final Intent intent = new Intent(v.getContext(),
+                    OpkomstChooserActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

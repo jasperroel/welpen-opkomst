@@ -8,6 +8,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
+/**
+ * <p>All models should inherit this!</p>
+ * 
+ * @author Jasper Roel
+ * 
+ * @param <T> The implementing class (so <code>XYZ implements DbHelper&lt;XYZ&gt</code>)
+ */
 public abstract class DbHelper<T> implements DbObject {
 
     private SQLiteOpenHelper db;

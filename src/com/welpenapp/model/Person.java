@@ -12,19 +12,19 @@ import com.welpenapp.db.generic.DbHelper;
  * <p>A person.</p>
  * 
  * @author Jasper Roel
- * @author Sander Roebers
  * 
  */
 public class Person extends DbHelper<Person> {
 
     public static final String tableName = "Person";
 
-    private static final String colId = BaseColumns._ID;
-    private static final String colLastName = "LastName";
-    private static final String colFirstName = "FirstName";
-    private static final String colActive = "Active";
-    private static final String colFunctie = "Functie";
-    private static final String colOvergevolgen = "Overgevlogen";
+    public static final String colId = BaseColumns._ID;
+    public static final String colLastName = "LastName";
+    public static final String colFirstName = "FirstName";
+    public static final String colActive = "Active";
+    public static final String colFunctie = "Functie";
+    public static final String colOvergevolgen = "Overgevlogen";
+    public static final String colContactId = "Contact_id";
 
     private static final String[] columnsCreate = new String[] {
         colId + " INTEGER PRIMARY KEY AUTOINCREMENT",
@@ -32,7 +32,8 @@ public class Person extends DbHelper<Person> {
         colFirstName + " TEXT NOT NULL",
         colActive + " INTEGER DEFAULT 1",
         colFunctie + " TEXT", // [welp, leiding]
-        colOvergevolgen + " DATE"
+        colContactId + " INTEGER",
+
     };
 
     private static final String[] columns = new String[] {
@@ -41,7 +42,8 @@ public class Person extends DbHelper<Person> {
         colFirstName,
         colActive,
         colFunctie,
-        colOvergevolgen
+        colOvergevolgen,
+        colContactId
     };
 
     public Person() {
@@ -82,7 +84,6 @@ public class Person extends DbHelper<Person> {
         cv.put(colLastName, "Roel");
         cv.put(colActive, 1);
         cv.put(colFunctie, "leiding");
-        // cv.put(colOvergevolgen, ???);
         sqLiteDb.insert(getTableName(), colId, cv);
 
         cv = new ContentValues();
@@ -90,7 +91,6 @@ public class Person extends DbHelper<Person> {
         cv.put(colLastName, "Roebers");
         cv.put(colActive, 1);
         cv.put(colFunctie, "leiding");
-        // cv.put(colOvergevolgen, ???);
         sqLiteDb.insert(getTableName(), colId, cv);
 
         cv = new ContentValues();
@@ -98,7 +98,6 @@ public class Person extends DbHelper<Person> {
         cv.put(colLastName, "van Drunen");
         cv.put(colActive, 1);
         cv.put(colFunctie, "leiding");
-        // cv.put(colOvergevolgen, ???);
         sqLiteDb.insert(getTableName(), colId, cv);
     }
 
